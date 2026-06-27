@@ -61,17 +61,15 @@ async def post_to_channel():
         for city, (lat, lon) in cities.items():
             stations = await get_stations_osm(lat, lon, city)
             if stations:
-                message += f"  📍 *{city}* — найдено {len(stations)} АЗС\n"
+                message += f"  📍 *{city}* — {len(stations)} АЗС\n"
                 for s in stations[:3]:
                     tags = s.get("tags", {})
                     name = tags.get("name", tags.get("brand", "АЗС"))
-                    brand = tags.get("brand", "")
-addr = tags.get("addr:street", "")
-has_95 = tags.get("fuel:octane_95", "")
-extra = f" — {addr}" if addr else ""
-fuel_tag = " ⛽95" if has_95 == "yes" else ""
-message += f"    • {name}{fuel_tag}{extra}\n"
-
+                    addr = tags.get("addr:street", "")
+                    has_95 = tags.get("fuel:octane_95", "")
+                    fuel_tag = " ✅95" if has_95 == "yes" else ""
+                    extra = f" — {addr}" if addr else ""
+                    message += f"    • {name}{fuel_tag}{extra}\n"
             else:
                 message += f"  📍 *{city}* — нет данных\n"
             await asyncio.sleep(1)
@@ -88,7 +86,7 @@ async def start(message: types.Message):
 
 @dp.message(Command("stations"))
 async def stations_cmd(message: types.Message):
-    await message.answer("🔍 Ищу АЗС... (займёт ~1 мин)")
+    await message.answer("🔍 Ищу АЗС... (~1 мин)")
     await post_to_channel()
     await message.answer("✅ Готово! Проверьте канал.")
 
@@ -101,3 +99,4 @@ async def main():
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     asyncio.run(main())
+
