@@ -14,9 +14,9 @@ bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
 REGION_PRICES = {
-    "Краснодарский край": {"АИ-92": "51.20", "АИ-95": "55.60", "ДТ": "59.80"},
-    "Ставропольский край": {"АИ-92": "50.90", "АИ-95": "55.30", "ДТ": "59.50"},
-    "Ростовская область": {"АИ-92": "51.10", "АИ-95": "55.50", "ДТ": "59.70"},
+    "🌴 Краснодарский край": {"АИ-92": "51.20", "АИ-95": "55.60", "ДТ": "59.80"},
+    "🌾 Ставропольский край": {"АИ-92": "50.90", "АИ-95": "55.30", "ДТ": "59.50"},
+    "🌻 Ростовская область": {"АИ-92": "51.10", "АИ-95": "55.50", "ДТ": "59.70"},
 }
 
 CITIES = {
@@ -41,12 +41,6 @@ CITIES = {
     },
 }
 
-REGION_MAP = {
-    "🌴 Краснодарский край": "Краснодарский край",
-    "🌾 Ставропольский край": "Ставропольский край",
-    "🌻 Ростовская область": "Ростовская область",
-}
-
 async def get_stations_osm(lat, lon, city):
     query = f"""
     [out:json][timeout:10];
@@ -69,10 +63,9 @@ async def post_to_channel():
     message = f"⛽ *АЗС — Юг России*\n📅 {now}\n\n"
 
     for region, cities in CITIES.items():
-        region_name = REGION_MAP[region]
-        prices = REGION_PRICES.get(region_name, {})
+        prices = REGION_PRICES.get(region, {})
         price_str = " | ".join([f"{k}: {v}₽" for k, v in prices.items()])
-        message += f"*{region}*\n💰 {price_str}\n"
+        message += f"*{region}*\n💰 _{price_str}_\n"
 
         for city, (lat, lon) in cities.items():
             stations = await get_stations_osm(lat, lon, city)
@@ -96,13 +89,17 @@ async def post_to_channel():
 
 @dp.message(Command("start"))
 async def start(message: types.Message):
-    await message.answer("⛽ Бот АЗС — Юг России\n\n/stations — АЗС и цены по регионам")
+    await message.answer("⛽ Бот АЗС — Юг России\n\n/stations — АЗС и цены")
 
 @dp.message(Command("stations"))
 async def stations_cmd(message: types.Message):
     await message.answer("🔍 Ищу АЗС... (~1 мин)")
     await post_to_channel()
     await message.answer("✅ Готово! Проверьте канал.")
+
+@dp.message(Command("prices"))
+async def prices_cmd(message: types.Message):
+    await message.answer("Используйте команду /stations ⛽")
 
 async def main():
     scheduler = AsyncIOScheduler(timezone="Europe/Moscow")
@@ -113,5 +110,6 @@ async def main():
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     asyncio.run(main())
+
 
 
