@@ -65,9 +65,13 @@ async def post_to_channel():
                 for s in stations[:3]:
                     tags = s.get("tags", {})
                     name = tags.get("name", tags.get("brand", "АЗС"))
-                    fuel = tags.get("fuel:octane_95", "")
-                    price = f" | 95: {fuel}₽" if fuel else ""
-                    message += f"    • {name}{price}\n"
+                    brand = tags.get("brand", "")
+addr = tags.get("addr:street", "")
+has_95 = tags.get("fuel:octane_95", "")
+extra = f" — {addr}" if addr else ""
+fuel_tag = " ⛽95" if has_95 == "yes" else ""
+message += f"    • {name}{fuel_tag}{extra}\n"
+
             else:
                 message += f"  📍 *{city}* — нет данных\n"
             await asyncio.sleep(1)
